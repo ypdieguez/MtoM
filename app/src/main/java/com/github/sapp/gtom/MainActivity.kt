@@ -27,22 +27,23 @@ class MainActivity : AppCompatActivity() {
                     1)
         }
 
-        val running = isServiceRunning()
+        var running = isServiceRunning()
         if (running) {
-            tvStatus.text = "Servicio corriendo..."
+            tvStatus.text = getText(R.string.service_running)
         } else {
-            tvStatus.text = "Servicio detenido..."
+            tvStatus.text = getText(R.string.service_stop)
         }
 
         fab.setOnClickListener { _ ->
             val intent = Intent(this, GtoMService::class.java)
             if (!running) {
                 startService(intent)
-                tvStatus.text = "Servicio corriendo..."
+                tvStatus.text = getText(R.string.service_running)
             } else {
                 stopService(intent)
-                tvStatus.text = "Servicio detenido..."
+                tvStatus.text = getText(R.string.service_stop)
             }
+            running = !running
         }
     }
 

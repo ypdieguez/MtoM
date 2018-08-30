@@ -13,6 +13,9 @@ import javax.mail.AuthenticationFailedException
 import javax.mail.Folder
 import javax.mail.MessagingException
 import javax.mail.Session
+import android.os.AsyncTask
+
+
 
 data class Email(val subjet: String, val content: String)
 
@@ -21,12 +24,18 @@ class GtoMService : Service() {
     private val mHandler: Handler = Handler()
     private val mRunnable = object : Runnable {
         override fun run() {
+            Task().execute()
+            // Repeat this the same runnable code block again.
+            mHandler.postDelayed(this, 60000)
+        }
+    }
+
+    private inner class Task : AsyncTask<String, Int, Void>() {
+        override fun doInBackground(vararg params: String?): Void? {
             for (email in readGMail()) {
                 senMsg(email)
             }
-
-            // Repeat this the same runnable code block again.
-            mHandler.postDelayed(this, 60000)
+            return null
         }
     }
 
@@ -53,7 +62,10 @@ class GtoMService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Start task
-        mHandler.post(mRunnable)
+
+        val thread = Thread(Runnable { mHandler.post(mRunnable) })
+        thread.priority = Thread.MAX_PRIORITY
+        thread.start()
         return Service.START_STICKY
     }
 
@@ -107,7 +119,7 @@ class GtoMService : Service() {
 
             //Close
             folder.close()
-            store.close()
+
 
         } catch (e: MailConnectException) {
             val a = 1
@@ -116,6 +128,8 @@ class GtoMService : Service() {
             val a = 1
         } catch (e: Exception) {
             val a = 1
+        } finally {
+           store.close()
         }
 
         // Return emails
