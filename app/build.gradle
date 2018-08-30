@@ -34,8 +34,8 @@ dependencies {
     implementation 'com.android.support:design:27.1.1'
 
     // JavaMail Android
-    implementation 'com.sun.mail:android-mail:1.6.1'
-    implementation 'com.sun.mail:android-activation:1.6.1'
+    implementation 'com.sun.mail:android-mail:1.6.0'
+    implementation 'com.sun.mail:android-activation:1.6.0'
 
     // Test
     testImplementation 'junit:junit:4.12'
