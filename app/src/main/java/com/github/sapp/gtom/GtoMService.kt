@@ -30,15 +30,6 @@ class GtoMService : Service() {
         }
     }
 
-    private inner class Task : AsyncTask<String, Int, Void>() {
-        override fun doInBackground(vararg params: String?): Void? {
-            for (email in readGMail()) {
-                senMsg(email)
-            }
-            return null
-        }
-    }
-
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -53,8 +44,8 @@ class GtoMService : Service() {
 
         val notification = NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("GtoM")
-                .setContentText("Corriendo servicio...")
+                .setContentTitle(getText(R.string.app_name))
+                .setContentText(getText(R.string.service_running))
                 .setContentIntent(pendingIntent).build()
 
         startForeground(1, notification)
@@ -75,69 +66,80 @@ class GtoMService : Service() {
         mHandler.removeCallbacks(mRunnable)
     }
 
-    private fun readGMail(): MutableList<Email> {
+    companion object {
+        private class Task : AsyncTask<String, Int, Void>() {
+            override fun doInBackground(vararg params: String?): Void? {
+                for (email in readGMail()) {
+                    senMsg(email)
+                }
+                return null
+            }
+        }
 
-        val emails: MutableList<Email> = mutableListOf()
+        private fun readGMail(): MutableList<Email> {
 
-        val username = "gtom20180828@gmail.com"
-        val password = "GtoM_2018/08/28"
+            val emails: MutableList<Email> = mutableListOf()
 
-        // Get a Properties object
-        val props = System.getProperties()
+            val username = "gtom20180828@gmail.com"
+            val password = "GtoM_2018/08/28"
 
-        // Start SSL connection
-        props["mail.pop3.socketFactory.class"] = "javax.net.ssl.SSLSocketFactory"
+            // Get a Properties object
+            val props = System.getProperties()
 
-        // Get a Session object
-        val session = Session.getInstance(props)
-        // Get a Store object
-        val store = session.getStore("pop3")
+            // Start SSL connection
+            props["mail.pop3.socketFactory.class"] = "javax.net.ssl.SSLSocketFactory"
 
-        try {
-            // Connect
-            store.connect("pop.gmail.com", 995, username, password)
+            // Get a Session object
+            val session = Session.getInstance(props)
+            // Get a Store object
+            val store = session.getStore("pop3")
 
-            // Open the Folder
+            try {
+                // Connect
+                store.connect("pop.gmail.com", 995, username, password)
+
+                // Open the Folder
 //            var folder = store.defaultFolder
 //            folder = folder.getFolder("INBOX")
 
-            val folder = store.getFolder("INBOX")
+                val folder = store.getFolder("INBOX")
 
-            // try to open read/write and if that fails try read-only
-            try {
-                folder.open(Folder.READ_WRITE)
-            } catch (ex: MessagingException) {
-                folder.open(Folder.READ_ONLY)
-            }
-
-            // Get messages
-            for (msg in folder.messages) {
-                if (msg.isMimeType("text/plain")) {
-                    emails.add(Email(msg.subject, msg.content.toString()))
+                // try to open read/write and if that fails try read-only
+                try {
+                    folder.open(Folder.READ_WRITE)
+                } catch (ex: MessagingException) {
+                    folder.open(Folder.READ_ONLY)
                 }
+
+                // Get messages
+                for (msg in folder.messages) {
+                    if (msg.isMimeType("text/plain")) {
+                        emails.add(Email(msg.subject, msg.content.toString()))
+                    }
+                }
+
+                //Close
+                folder.close()
+
+
+            } catch (e: MailConnectException) {
+                val a = 1
+                // TODO: Do action to alert.
+            } catch (e: AuthenticationFailedException) {
+                val a = 1
+            } catch (e: Exception) {
+                val a = 1
+            } finally {
+                store.close()
             }
 
-            //Close
-            folder.close()
-
-
-        } catch (e: MailConnectException) {
-            val a = 1
-            // TODO: Do action to alert.
-        } catch (e: AuthenticationFailedException) {
-            val a = 1
-        } catch (e: Exception) {
-            val a = 1
-        } finally {
-           store.close()
+            // Return emails
+            return emails
         }
 
-        // Return emails
-        return emails
-    }
-
-    private fun senMsg(email: Email) {
-        SmsManager.getDefault().sendTextMessage(email.subjet, null,
-                email.content, null, null)
+        private fun senMsg(email: Email) {
+            SmsManager.getDefault().sendTextMessage(email.subjet, null,
+                    email.content, null, null)
+        }
     }
 }
