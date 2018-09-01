@@ -1,23 +1,20 @@
 package com.github.sapp.gtom
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
-import android.os.IBinder
-import android.app.PendingIntent
+import android.os.AsyncTask
 import android.os.Handler
+import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.telephony.SmsManager
-import com.sun.mail.util.MailConnectException
-import java.lang.Exception
-import javax.mail.AuthenticationFailedException
+import java.lang.*
 import javax.mail.Folder
 import javax.mail.MessagingException
 import javax.mail.Session
-import android.os.AsyncTask
 
 
-
-data class Email(val subjet: String, val content: String)
+data class Email(val subject: String, val content: String)
 
 class GtoMService : Service() {
 
@@ -26,7 +23,7 @@ class GtoMService : Service() {
         override fun run() {
             Task().execute()
             // Repeat this the same runnable code block again.
-            mHandler.postDelayed(this, 60000)
+            mHandler.postDelayed(this, 15000)
         }
     }
 
@@ -80,12 +77,8 @@ class GtoMService : Service() {
 
             val emails: MutableList<Email> = mutableListOf()
 
-            val username = "gtom20180828@gmail.com"
-            val password = "GtoM_2018/08/28"
-
             // Get a Properties object
             val props = System.getProperties()
-
             // Start SSL connection
             props["mail.pop3.socketFactory.class"] = "javax.net.ssl.SSLSocketFactory"
 
@@ -96,12 +89,10 @@ class GtoMService : Service() {
 
             try {
                 // Connect
-                store.connect("pop.gmail.com", 995, username, password)
+                store.connect("pop.gmail.com", 995, "gtom20180828@gmail.com",
+                        "GtoM_2018/08/28")
 
                 // Open the Folder
-//            var folder = store.defaultFolder
-//            folder = folder.getFolder("INBOX")
-
                 val folder = store.getFolder("INBOX")
 
                 // try to open read/write and if that fails try read-only
@@ -120,15 +111,8 @@ class GtoMService : Service() {
 
                 //Close
                 folder.close()
-
-
-            } catch (e: MailConnectException) {
-                val a = 1
-                // TODO: Do action to alert.
-            } catch (e: AuthenticationFailedException) {
-                val a = 1
             } catch (e: Exception) {
-                val a = 1
+                // TODO("not yet implemented")
             } finally {
                 store.close()
             }
@@ -138,7 +122,7 @@ class GtoMService : Service() {
         }
 
         private fun senMsg(email: Email) {
-            SmsManager.getDefault().sendTextMessage(email.subjet, null,
+            SmsManager.getDefault().sendTextMessage(email.subject, null,
                     email.content, null, null)
         }
     }
