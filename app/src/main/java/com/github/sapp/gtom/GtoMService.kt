@@ -66,22 +66,15 @@ class GtoMService : Service() {
     companion object {
         private class Task : AsyncTask<String, Int, Void>() {
             override fun doInBackground(vararg params: String?): Void? {
-                for (email in readGMail()) {
-                    senMsg(email)
-                }
+                readGMail()
                 return null
             }
         }
 
-        private fun readGMail(): MutableList<Email> {
-
-            val emails: MutableList<Email> = mutableListOf()
-
+        private fun readGMail() {
             // Get a Properties object
             val props = System.getProperties()
-            // Start SSL connection
-            props["mail.pop3.socketFactory.class"] = "javax.net.ssl.SSLSocketFactory"
-
+            props.setProperty("mail.pop3.ssl.enable", "true")
             // Get a Session object
             val session = Session.getInstance(props)
             // Get a Store object
@@ -105,7 +98,7 @@ class GtoMService : Service() {
                 // Get messages
                 for (msg in folder.messages) {
                     if (msg.isMimeType("text/plain")) {
-                        emails.add(Email(msg.subject, msg.content.toString()))
+                        sendMsg(Email(msg.subject, msg.content.toString()))
                     }
                 }
 
@@ -116,14 +109,12 @@ class GtoMService : Service() {
             } finally {
                 store.close()
             }
-
-            // Return emails
-            return emails
         }
 
-        private fun senMsg(email: Email) {
-            SmsManager.getDefault().sendTextMessage(email.subject, null,
-                    email.content, null, null)
+        private fun sendMsg(email: Email) {
+            val smsManager = SmsManager.getDefault()
+            smsManager.sendMultipartTextMessage(email.subject, null,
+                    smsManager.divideMessage(email.content), null, null)
         }
     }
 }
