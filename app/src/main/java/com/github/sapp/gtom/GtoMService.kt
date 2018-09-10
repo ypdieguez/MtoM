@@ -1,7 +1,9 @@
 package com.github.sapp.gtom
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Handler
@@ -9,6 +11,7 @@ import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.telephony.SmsManager
 import java.lang.*
+import java.util.*
 import javax.mail.Folder
 import javax.mail.MessagingException
 import javax.mail.Session
@@ -18,6 +21,7 @@ data class Email(val subject: String, val content: String)
 
 class GtoMService : Service() {
 
+    private var initialized: Boolean = false
     private val mHandler: Handler = Handler()
     private val mRunnable = object : Runnable {
         override fun run() {
@@ -31,8 +35,25 @@ class GtoMService : Service() {
         return null
     }
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (!initialized) {
+            initializeService()
+        }
+        return Service.START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        finishService()
+        restartService()
+    }
+
+    private fun initializeService() {
+        // Start task
+        val thread = Thread(Runnable { mHandler.post(mRunnable) })
+        thread.start()
+
+        initialized = true
 
         val notificationIntent = Intent(this, MainActivity::class.java)
 
@@ -48,24 +69,23 @@ class GtoMService : Service() {
         startForeground(1, notification)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Start task
-
-        val thread = Thread(Runnable { mHandler.post(mRunnable) })
-        thread.priority = Thread.MAX_PRIORITY
-        thread.start()
-        return Service.START_STICKY
+    private fun finishService() {
+        initialized = false
+        mHandler.removeCallbacks(mRunnable)
+        // Remove notification
+        stopForeground(true)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        // Stop Service
-        mHandler.removeCallbacks(mRunnable)
+    private fun restartService() {
+        val intent = Intent(this, GtoMService::class.java)
+        val pendingIntent = PendingIntent.getService(this, 0, intent, 0)
+        (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(AlarmManager.RTC_WAKEUP,
+                Date().time + 1000, pendingIntent)
     }
 
     companion object {
-        private class Task : AsyncTask<String, Int, Void>() {
-            override fun doInBackground(vararg params: String?): Void? {
+        private class Task : AsyncTask<Void, Void, Void>() {
+            override fun doInBackground(vararg params: Void?): Void? {
                 readGMail()
                 return null
             }
