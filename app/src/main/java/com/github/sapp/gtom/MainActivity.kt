@@ -21,10 +21,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.SEND_SMS),
-                    1)
+        if (!Permissions.check(this)) {
+            Permissions.request(this)
         }
 
         updateUI(isServiceRunning())
