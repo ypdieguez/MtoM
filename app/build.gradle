@@ -1,24 +1,33 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
     defaultConfig {
-        applicationId "com.github.sapp.gtom"
+        applicationId "com.sapp.mtom"
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 3
         versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        flavorDimensions "default"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        gtom{
+            applicationId "com.saap.mtom.gmail"
+        }
+
+        ntom{
+            applicationId "com.saap.mtom.nauta"
         }
     }
     packagingOptions {

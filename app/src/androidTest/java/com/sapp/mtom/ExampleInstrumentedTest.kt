@@ -1,4 +1,4 @@
-package com.github.sapp.gtom
+package com.sapp.mtom
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4

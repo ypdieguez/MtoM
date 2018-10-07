@@ -1,4 +1,4 @@
-package com.github.sapp.gtom
+package com.sapp.mtom
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -10,6 +10,8 @@ import android.os.Handler
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import android.telephony.SmsManager
+import com.github.sapp.gtom.R
+import com.sapp.mtom.ExceptionHandler
 import java.lang.*
 import java.util.*
 import javax.mail.Folder

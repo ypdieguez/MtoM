@@ -1,13 +1,12 @@
-package com.github.sapp.gtom
+package com.sapp.mtom
 
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AppCompatActivity
-import android.view.View
+import com.github.sapp.gtom.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
