@@ -1,10 +1,9 @@
 package com.github.sapp.gtom
 
-import android.Manifest
 import android.Manifest.permission.*
 import android.content.Context
 import android.content.pm.PackageManager
-import android.support.v4.app.ActivityCompat
+import androidx.core.app.ActivityCompat
 
 class Permissions {
     companion object {

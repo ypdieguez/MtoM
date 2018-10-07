@@ -4,7 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.os.Environment
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
 import java.io.*
 
 

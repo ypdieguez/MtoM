@@ -1,14 +1,12 @@
 package com.github.sapp.gtom
 
-import android.Manifest
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -42,7 +40,6 @@ class MainActivity : AppCompatActivity() {
         if (running) {
             tvStatus.text = getText(R.string.service_running)
             fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.stop))
-            fab.visibility = View.GONE
         } else {
             tvStatus.text = getText(R.string.service_stop)
             fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.play))
