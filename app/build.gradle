@@ -28,11 +28,11 @@ android {
     }
 
     productFlavors {
-        gamil {
+        gmail {
             applicationIdSuffix ".gmail"
             // Config
             buildConfigField "String", "HOST", '"pop.gmail.com"'
-            buildConfigField "Int", "PORT", "995"
+            buildConfigField "int", "PORT", "995"
             buildConfigField "String", "USER", '"gtom20180828@gmail.com"'
             buildConfigField "String", "PASS", '"GtoM_2018/08/28"'
             buildConfigField "String", "PROP_SSL_ENABLED", '"true"'
