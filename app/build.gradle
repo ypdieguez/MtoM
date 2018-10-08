@@ -14,22 +14,41 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions "default"
     }
+
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug{
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
         }
     }
 
     productFlavors {
-        gtom{
-            applicationId "com.saap.mtom.gmail"
+        gamil {
+            applicationIdSuffix ".gmail"
+            // Config
+            buildConfigField "String", "HOST", '"pop.gmail.com"'
+            buildConfigField "Int", "PORT", "995"
+            buildConfigField "String", "USER", '"gtom20180828@gmail.com"'
+            buildConfigField "String", "PASS", '"GtoM_2018/08/28"'
+            buildConfigField "String", "PROP_SSL_ENABLED", '"true"'
         }
 
-        ntom{
-            applicationId "com.saap.mtom.nauta"
+        nauta {
+            applicationIdSuffix ".nauta"
+            // Config
+            buildConfigField "String", "HOST", '"pop.nauta.cu"'
+            buildConfigField "int", "PORT", "110"
+            buildConfigField "String", "USER", '"ypdieguez@nauta.cu"'
+            buildConfigField "String", "PASS", '"fAzvXPc2"'
+            buildConfigField "String", "PROP_SSL_ENABLED", '"false"'
         }
     }
+
     packagingOptions {
         pickFirst 'META-INF/LICENSE.txt' // picks the JavaMail license file
     }
@@ -66,4 +85,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
+
+    // android-smsmms
+    implementation project(':android-smsmms')
 }
