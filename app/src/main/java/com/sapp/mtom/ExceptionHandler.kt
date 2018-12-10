@@ -2,6 +2,7 @@ package com.sapp.mtom
 
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import androidx.core.app.NotificationCompat
@@ -58,6 +59,8 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
                 as NotificationManager
         notificationManager.notify(2, notification)
+
+        context.stopService(Intent(context, MtoMService::class.java))
     }
 
     private fun appendError(text: String) {

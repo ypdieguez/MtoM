@@ -31,20 +31,20 @@ android {
         gmail {
             applicationIdSuffix ".gmail"
             // Config
-            buildConfigField "String", "HOST", '"pop.gmail.com"'
-            buildConfigField "int", "PORT", "995"
-            buildConfigField "String", "USER", '"gtom20180828@gmail.com"'
-            buildConfigField "String", "PASS", '"GtoM_2018/08/28"'
+            buildConfigField "String", "HOST", '"imap.gmail.com"'
+            buildConfigField "int", "PORT", "993"
+            buildConfigField "String", "USER", '"2dzf4fcdjqmiafzr@gmail.com"'
+            buildConfigField "String", "PASS", '"9kQqzSLS"'
             buildConfigField "String", "PROP_SSL_ENABLED", '"true"'
         }
 
         nauta {
             applicationIdSuffix ".nauta"
             // Config
-            buildConfigField "String", "HOST", '"pop.nauta.cu"'
-            buildConfigField "int", "PORT", "110"
+            buildConfigField "String", "HOST", '"imap.nauta.cu"'
+            buildConfigField "int", "PORT", "143"
             buildConfigField "String", "USER", '"ypdieguez@nauta.cu"'
-            buildConfigField "String", "PASS", '"fAzvXPc2"'
+            buildConfigField "String", "PASS", '"DalexS/07/09/14."'
             buildConfigField "String", "PROP_SSL_ENABLED", '"false"'
         }
     }
@@ -52,6 +52,7 @@ android {
     packagingOptions {
         pickFirst 'META-INF/LICENSE.txt' // picks the JavaMail license file
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -61,7 +62,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.0.0'
 
