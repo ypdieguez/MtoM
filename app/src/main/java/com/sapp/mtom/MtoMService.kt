@@ -98,65 +98,65 @@ class MtoMService : Service() {
 //    }
 
     private fun readGMail() {
-//        try {
-        // Get a Properties object
-        val props = System.getProperties()
-        props.setProperty("mail.imap.ssl.enable", PROP_SSL_ENABLED)
-        // Get a Session object
-        val session = Session.getInstance(props)
-        // Get a Store object
-        val store = session.getStore("imap")
-        // Connect
-        store.connect(HOST, PORT, USER, PASS)
+        try {
+            // Get a Properties object
+            val props = System.getProperties()
+            props.setProperty("mail.imap.ssl.enable", PROP_SSL_ENABLED)
+            // Get a Session object
+            val session = Session.getInstance(props)
+            // Get a Store object
+            val store = session.getStore("imap")
+            // Connect
+            store.connect(HOST, PORT, USER, PASS)
 
-        // Get INBOX Folder
-        val folder = store.getFolder("INBOX")
-        // Try to open write
-        folder.open(Folder.READ_WRITE)
+            // Get INBOX Folder
+            val folder = store.getFolder("INBOX")
+            // Try to open write
+            folder.open(Folder.READ_WRITE)
 
-        // First batch of messages
-        var msgnum = 1
-        var count = folder.messageCount
-        while (msgnum <= count) {
+            // First batch of messages
+            var msgnum = 1
+            var count = folder.messageCount
             while (msgnum <= count) {
-                // Get message and send
-                val msg = folder.getMessage(msgnum)
-                if (msg.isMimeType("text/plain")) {
-                    sendMsg(Email(msg.subject, msg.content.toString()))
-                }
-                msg.setFlag(Flags.Flag.DELETED, true)
-
-                msgnum++
-            }
-            count = folder.messageCount
-        }
-        // Processed all
-
-        // Expunge (permanently remove) messages marked DELETED
-//        folder.expunge()
-
-        // Add MessageCountListener to listen for new messages
-        folder.addMessageCountListener(object : MessageCountAdapter() {
-            override fun messagesAdded(ev: MessageCountEvent) {
-                // Get message and send
-                for (msg in ev.messages) {
+                while (msgnum <= count) {
+                    // Get message and send
+                    val msg = folder.getMessage(msgnum)
                     if (msg.isMimeType("text/plain")) {
                         sendMsg(Email(msg.subject, msg.content.toString()))
                     }
                     msg.setFlag(Flags.Flag.DELETED, true)
+
+                    msgnum++
                 }
-                // Expunge (permanently remove) messages marked DELETED
-//                folder.expunge()
+                count = folder.messageCount
             }
-        })
+            // Processed all
 
-        // Wait for new messages
-        while (true)
-            (folder as IMAPFolder).idle()
+            // Expunge (permanently remove) messages marked DELETED
+            folder.expunge()
 
-//        } catch (e: Exception) {
-//            ExceptionHandler(this).uncaughtException(Thread.currentThread(), e)
-//        }
+            // Add MessageCountListener to listen for new messages
+            folder.addMessageCountListener(object : MessageCountAdapter() {
+                override fun messagesAdded(ev: MessageCountEvent) {
+                    // Get message and send
+                    for (msg in ev.messages) {
+                        if (msg.isMimeType("text/plain")) {
+                            sendMsg(Email(msg.subject, msg.content.toString()))
+                        }
+                        msg.setFlag(Flags.Flag.DELETED, true)
+                    }
+                    // Expunge (permanently remove) messages marked DELETED
+                    folder.expunge()
+                }
+            })
+
+            // Wait for new messages
+            while (true)
+                (folder as IMAPFolder).idle()
+
+        } catch (e: Exception) {
+            ExceptionHandler(this).uncaughtException(Thread.currentThread(), e)
+        }
     }
 
     private val smsManager = SmsManager.getDefault()
