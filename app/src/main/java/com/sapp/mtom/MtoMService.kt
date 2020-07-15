@@ -1,12 +1,12 @@
 package com.sapp.mtom
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.telephony.SmsManager
@@ -15,7 +15,6 @@ import com.klinker.android.send_message.Message
 import com.klinker.android.send_message.Settings
 import com.klinker.android.send_message.Transaction
 import com.sapp.mtom.BuildConfig.*
-import java.lang.*
 import java.util.*
 import javax.mail.Flags
 import javax.mail.Folder
@@ -45,7 +44,7 @@ class MtoMService : Service() {
         if (!initialized) {
             initializeService()
         }
-        return Service.START_STICKY
+        return START_STICKY
     }
 
     override fun onDestroy() {
@@ -61,14 +60,33 @@ class MtoMService : Service() {
         val thread = Thread(Runnable { mHandler.post(mRunnable) })
         thread.start()
 
+        // Set flag
         initialized = true
 
+        // Create intent to open activity
         val notificationIntent = Intent(this, MainActivity::class.java)
-
         val pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0)
 
-        val notification = NotificationCompat.Builder(this)
+        // Create chanel for android phones with api >= 26
+        val channelId =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val channel = NotificationChannel("com.sapp.mtom.mailsmsservice", "MailSMSService", NotificationManager.IMPORTANCE_NONE)
+                    channel.lightColor = Color.BLUE
+                    channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+                    val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    service.createNotificationChannel(channel)
+                    channel.id
+                } else {
+                    // If earlier version channel ID is not used
+                    // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
+                    ""
+                }
+
+        val notification = NotificationCompat.Builder(this, channelId)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getText(R.string.app_name))
                 .setContentText(getText(R.string.service_running))
@@ -96,11 +114,11 @@ class MtoMService : Service() {
         private class Task(private val context: Context) : AsyncTask<Void, Void, Void>() {
 
             override fun doInBackground(vararg params: Void): Void? {
-                readGMail()
+                readMail()
                 return null
             }
 
-            private fun readGMail() {
+            private fun readMail() {
                 try {
                     // Get a Properties object
                     val props = System.getProperties()
@@ -151,7 +169,7 @@ class MtoMService : Service() {
                         settings.useSystemSending = true
                         val transaction = Transaction(context, settings)
                         val message = Message(email.content, email.subject)
-                        message.sendAsMMS(true)
+//                        message.sendAsMMS(true)
                         transaction.sendNewMessage(message, Transaction.NO_THREAD_ID)
                     }
                 }
