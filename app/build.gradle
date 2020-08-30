@@ -7,7 +7,7 @@ android {
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.sapp.mtom"
-        minSdkVersion 19
+        minSdkVersion 15
         targetSdkVersion 29
         versionCode 3
         versionName "1.2"
@@ -27,14 +27,15 @@ android {
         }
     }
 
+    // Type here mail configs
     productFlavors {
         gmail {
             applicationIdSuffix ".gmail"
             // Config
             buildConfigField "String", "HOST", '"pop.gmail.com"'
             buildConfigField "int", "PORT", "995"
-            buildConfigField "String", "USER", '"yuupiworld.cuba.sms@gmail.com"'
-            buildConfigField "String", "PASS", '"YuupiWorld@1234567890"'
+            buildConfigField "String", "USER", '"YourUsername@gmail.com"'
+            buildConfigField "String", "PASS", '"YourPassword"'
             buildConfigField "String", "PROP_SSL_ENABLED", '"true"'
         }
 
@@ -43,8 +44,8 @@ android {
             // Config
             buildConfigField "String", "HOST", '"pop.nauta.cu"'
             buildConfigField "int", "PORT", "110"
-            buildConfigField "String", "USER", '"ypdieguez@nauta.cu"'
-            buildConfigField "String", "PASS", '"fAzvXPc2"'
+            buildConfigField "String", "USER", '"YourUsername@nauta.cu"'
+            buildConfigField "String", "PASS", '"YourPassword"'
             buildConfigField "String", "PROP_SSL_ENABLED", '"false"'
         }
     }
