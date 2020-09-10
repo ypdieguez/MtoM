@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">GtoM</string>
-    <string name="action_settings">Ajustes</string>
-    <string name="service_running">Servicio corriendo</string>
-    <string name="service_stop">Servicio detenido</string>
+    <string name="app_name">MtoM</string>
+    <string name="service_running">Service running</string>
+    <string name="service_stop">Service stopped</string>
 </resources>

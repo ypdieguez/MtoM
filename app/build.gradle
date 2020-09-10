@@ -1,26 +1,55 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
     defaultConfig {
-        applicationId "com.github.sapp.gtom"
-        minSdkVersion 19
-        targetSdkVersion 28
+        applicationId "com.sapp.mtom"
+        minSdkVersion 15
+        targetSdkVersion 29
         versionCode 3
         versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        flavorDimensions "default"
     }
+
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        debug{
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
     }
+
+    // Type here mail configs
+    productFlavors {
+        gmail {
+            applicationIdSuffix ".gmail"
+            // Config
+            buildConfigField "String", "HOST", '"pop.gmail.com"'
+            buildConfigField "int", "PORT", "995"
+            buildConfigField "String", "USER", '"YourUsername@gmail.com"'
+            buildConfigField "String", "PASS", '"YourPassword"'
+            buildConfigField "String", "PROP_SSL_ENABLED", '"true"'
+        }
+
+        nauta {
+            applicationIdSuffix ".nauta"
+            // Config
+            buildConfigField "String", "HOST", '"pop.nauta.cu"'
+            buildConfigField "int", "PORT", "110"
+            buildConfigField "String", "USER", '"YourUsername@nauta.cu"'
+            buildConfigField "String", "PASS", '"YourPassword"'
+            buildConfigField "String", "PROP_SSL_ENABLED", '"false"'
+        }
+    }
+
     packagingOptions {
         pickFirst 'META-INF/LICENSE.txt' // picks the JavaMail license file
     }
@@ -41,6 +70,9 @@ dependencies {
     implementation 'com.sun.mail:android-mail:1.6.2'
     implementation 'com.sun.mail:android-activation:1.6.2'
 
+    // android-smsmms
+    implementation 'com.klinkerapps:android-smsmms:5.2.6'
+
     //ACRA
 //    def acraVersion = '5.2.0'
 //    implementation "ch.acra:acra-http:$acraVersion"
@@ -55,6 +87,6 @@ dependencies {
 
     // Test
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

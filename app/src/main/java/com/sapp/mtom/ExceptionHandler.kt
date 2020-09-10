@@ -1,4 +1,4 @@
-package com.github.sapp.gtom
+package com.sapp.mtom
 
 import android.app.NotificationManager
 import android.content.Context

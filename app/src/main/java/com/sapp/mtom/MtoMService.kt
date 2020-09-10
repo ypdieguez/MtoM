@@ -1,17 +1,22 @@
-package com.github.sapp.gtom
+package com.sapp.mtom
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.app.Service
+import android.annotation.SuppressLint
+import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
 import android.telephony.SmsManager
-import java.lang.*
+import androidx.core.app.NotificationCompat
+import com.klinker.android.send_message.Message
+import com.klinker.android.send_message.Settings
+import com.klinker.android.send_message.Transaction
+import com.sapp.mtom.BuildConfig.*
 import java.util.*
+import javax.mail.Flags
 import javax.mail.Folder
 import javax.mail.MessagingException
 import javax.mail.Session
@@ -19,15 +24,15 @@ import javax.mail.Session
 
 data class Email(val subject: String, val content: String)
 
-class GtoMService : Service() {
+class MtoMService : Service() {
 
     private var initialized: Boolean = false
     private val mHandler: Handler = Handler()
     private val mRunnable = object : Runnable {
         override fun run() {
-            Task().execute(this@GtoMService)
+            Task(this@MtoMService).execute()
             // Repeat this the same runnable code block again.
-            mHandler.postDelayed(this, 15000)
+            mHandler.postDelayed(this, 30000)
         }
     }
 
@@ -39,7 +44,7 @@ class GtoMService : Service() {
         if (!initialized) {
             initializeService()
         }
-        return Service.START_STICKY
+        return START_STICKY
     }
 
     override fun onDestroy() {
@@ -55,14 +60,33 @@ class GtoMService : Service() {
         val thread = Thread(Runnable { mHandler.post(mRunnable) })
         thread.start()
 
+        // Set flag
         initialized = true
 
+        // Create intent to open activity
         val notificationIntent = Intent(this, MainActivity::class.java)
-
         val pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0)
 
-        val notification = NotificationCompat.Builder(this)
+        // Create chanel for android phones with api >= 26
+        val channelId =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val channel = NotificationChannel("com.sapp.mtom.mailsmsservice", "MailSMSService", NotificationManager.IMPORTANCE_NONE)
+                    channel.lightColor = Color.BLUE
+                    channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+                    val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                    service.createNotificationChannel(channel)
+                    channel.id
+                } else {
+                    // If earlier version channel ID is not used
+                    // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
+                    ""
+                }
+
+        val notification = NotificationCompat.Builder(this, channelId)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getText(R.string.app_name))
                 .setContentText(getText(R.string.service_running))
@@ -79,32 +103,32 @@ class GtoMService : Service() {
     }
 
     private fun restartService() {
-        val intent = Intent(this, GtoMService::class.java)
+        val intent = Intent(this, MtoMService::class.java)
         val pendingIntent = PendingIntent.getService(this, 0, intent, 0)
         (getSystemService(Context.ALARM_SERVICE) as AlarmManager).set(AlarmManager.RTC_WAKEUP,
                 Date().time + 1000, pendingIntent)
     }
 
     companion object {
-        private class Task : AsyncTask<Context, Void, Void>() {
+        @SuppressLint("StaticFieldLeak")
+        private class Task(private val context: Context) : AsyncTask<Void, Void, Void>() {
 
-            override fun doInBackground(vararg params: Context): Void? {
-                readGMail(params[0])
+            override fun doInBackground(vararg params: Void): Void? {
+                readMail()
                 return null
             }
 
-            private fun readGMail(context: Context) {
+            private fun readMail() {
                 try {
                     // Get a Properties object
                     val props = System.getProperties()
-                    props.setProperty("mail.pop3.ssl.enable", "true")
+                    props.setProperty("mail.pop3.ssl.enable", PROP_SSL_ENABLED)
                     // Get a Session object
                     val session = Session.getInstance(props)
                     // Get a Store object
                     val store = session.getStore("pop3")
                     // Connect
-                    store.connect("pop.gmail.com", 995, "gtom20180828@gmail.com",
-                            "GtoM_2018/08/28")
+                    store.connect(HOST, PORT, USER, PASS)
 
                     // Open the Folder
                     val folder = store.getFolder("INBOX")
@@ -121,10 +145,11 @@ class GtoMService : Service() {
                         if (msg.isMimeType("text/plain")) {
                             sendMsg(Email(msg.subject, msg.content.toString()))
                         }
+                        msg.setFlag(Flags.Flag.DELETED, true)
                     }
 
                     //Close
-                    folder.close()
+                    folder.close(true)
                     store.close()
                 } catch (e: Exception) {
                     ExceptionHandler(context).uncaughtException(Thread.currentThread(), e)
@@ -132,9 +157,22 @@ class GtoMService : Service() {
             }
 
             private fun sendMsg(email: Email) {
-                val smsManager = SmsManager.getDefault()
-                smsManager.sendMultipartTextMessage(email.subject, null,
-                        smsManager.divideMessage(email.content), null, null)
+                when (FLAVOR) {
+                    "gmail" -> {
+                        val smsManager = SmsManager.getDefault()
+                        smsManager.sendMultipartTextMessage(email.subject, null,
+                                smsManager.divideMessage(email.content), null,
+                                null)
+                    }
+                    "nauta" -> {
+                        val settings = Settings()
+                        settings.useSystemSending = true
+                        val transaction = Transaction(context, settings)
+                        val message = Message(email.content, email.subject)
+//                        message.sendAsMMS(true)
+                        transaction.sendNewMessage(message, Transaction.NO_THREAD_ID)
+                    }
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.github.sapp.gtom
+package com.sapp.mtom
 
 import android.Manifest.permission.*
 import android.content.Context
@@ -7,7 +7,7 @@ import androidx.core.app.ActivityCompat
 
 class Permissions {
     companion object {
-        private val PERMISSIONS = arrayOf(SEND_SMS, WRITE_EXTERNAL_STORAGE)
+        private val PERMISSIONS = arrayOf(SEND_SMS, READ_SMS,WRITE_EXTERNAL_STORAGE)
         fun check(context: Context) : Boolean {
             for (permission in PERMISSIONS) {
                 if (ActivityCompat.checkSelfPermission(context, permission) !=
